@@ -6,8 +6,16 @@ const pokemonDetails = document.getElementById("pokemonDetails");
 const apiURL = "https://pokeapi.co/api/v2/pokemon/";
 
 const displayPokemonData = (pokemon) => {
+  pokemonDetails.innerHTML = ""
+
+  const regularImg = pokemon.sprites.front_default
+  const shinyImg = pokemon.sprites.front_shiny
+  let isShiny = false
+
+
   const pokemonHTML = `
-    <img src="${pokemon.sprites.front_default}" alt="${pokemon.name}">
+    <img id="pokemonImg" src="${regularImg}" alt="${pokemon.name}">
+    <button id="shiny-button" class="shiny-toggle">Shiny</button>
     <h2>${pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}</h2>
     <p><strong>Height:</strong> ${pokemon.height / 10} m</p>
     <p><strong>Weight:</strong> ${pokemon.weight / 10} kg</p>
@@ -17,24 +25,37 @@ const displayPokemonData = (pokemon) => {
     `;
 
   pokemonDetails.innerHTML = pokemonHTML;
+
+  const shinyButton = document.getElementById('shiny-button')
+  const pokemonImg = document.getElementById('pokemonImg')
+
+  shinyButton.addEventListener('click', () => {
+    if (isShiny) {
+      pokemonImg.src = regularImg
+    } else {
+      pokemonImg.src = shinyImg
+
+    }
+    isShiny = !isShiny
+  })
 };
 
-const displayEvolutionChain = (evolutionStages) => {
-  let evolutionHTML = `<h3 class="evolution-title">Evolution Chain</h3><div class="evolution-container">`;
+// const displayEvolutionChain = (evolutionStages) => {
+//   let evolutionHTML = `<h3 class="evolution-title">Evolution Chain</h3><div class="evolution-container">`;
 
-  evolutionStages.forEach((stage) => {
-    evolutionHTML += `
-      <div class="evolution-stage">
-        <img src="${stage.image}" alt="${stage.name}">
-        <p>${stage.name.charAt(0).toUpperCase() + stage.name.slice(1)}</p>
-      </div>
-    `;
-  });
+//   evolutionStages.forEach((stage) => {
+//     evolutionHTML += `
+//       <div class="evolution-stage">
+//         <img src="${stage.image}" alt="${stage.name}">
+//         <p>${stage.name.charAt(0).toUpperCase() + stage.name.slice(1)}</p>
+//       </div>
+//     `;
+//   });
 
-  evolutionHTML += `</div>`;
+//   evolutionHTML += `</div>`;
 
-  pokemonDetails.innerHTML += evolutionHTML;
-};
+//   pokemonDetails.innerHTML += evolutionHTML;
+// };
 
 const getAllEvolutionStages = async (evolutionChain) => {
   let stages = [];
@@ -74,13 +95,13 @@ const getPokemonData = async (name) => {
     const speciesResponse = await fetch(speciesUrl);
     const speciesData = await speciesResponse.json();
 
-    const evolutionChainUrl = speciesData.evolution_chain.url;
-    const evolutionResponse = await fetch(evolutionChainUrl);
-    const evolutionData = await evolutionResponse.json();
+    // const evolutionChainUrl = speciesData.evolution_chain.url;
+    // const evolutionResponse = await fetch(evolutionChainUrl);
+    // const evolutionData = await evolutionResponse.json();
 
-    const evolutionStages = await getAllEvolutionStages(evolutionData.chain);
+    // const evolutionStages = await getAllEvolutionStages(evolutionData.chain);
 
-    displayEvolutionChain(evolutionStages);
+    // displayEvolutionChain(evolutionStages);
   } catch (error) {
     console.log(error);
   }
@@ -88,11 +109,15 @@ const getPokemonData = async (name) => {
 
 const getRandomPokemonData = () => {
   const randomNum = Math.floor(Math.random() * 1025) + 1;
-  getPokemonData(randomNum === 1026 ? "1025" : $`{randomNum}`);
+  getPokemonData(randomNum === 1026 ? "1025" : `${randomNum}`);
 };
 
 searchButton.addEventListener("click", () => {
-  getPokemonData(pokemonName.value);
+  if(pokemonName.ariaValueMax.trim()){
+    getPokemonData(pokemonName.value);
+  } else {
+    alert("please enter a pokemon name")
+  }
 });
 
 randomButton.addEventListener("click", () => {
